@@ -1,0 +1,38 @@
+{% extends "admin/base.html" %}
+{% block title %}URLs{% endblock %}
+
+{% block content %}
+<h4 class="mb-4 fw-bold">All URLs</h4>
+<div class="card p-3">
+    <table class="table table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th><th>Short Code</th><th>Original URL</th>
+                <th>Clicks</th><th>Owner</th><th>Created</th><th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for url in urls %}
+        <tr>
+            <td>{{ url.id }}</td>
+            <td><code>{{ url.short_code }}</code></td>
+            <td class="text-truncate" style="max-width:250px">
+                <a href="{{ url.original_url }}" target="_blank">{{ url.original_url }}</a>
+            </td>
+            <td>{{ url.clicks }}</td>
+            <td>{{ url.owner.username }}</td>
+            <td>{{ url.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+            <td>
+                <form method="post" action="/admin/urls/{{ url.id }}/delete"
+                      onsubmit="return confirm('Delete this URL?')">
+                    <button class="btn btn-sm btn-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="text-center text-muted">No URLs yet</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

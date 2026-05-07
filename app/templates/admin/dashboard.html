@@ -1,0 +1,45 @@
+{% extends "admin/base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h4 class="mb-4 fw-bold">Dashboard</h4>
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card stat-card bg-primary text-white p-3">
+            <div class="fs-2 fw-bold">{{ total_users }}</div>
+            <div>Total Users</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card bg-success text-white p-3">
+            <div class="fs-2 fw-bold">{{ total_urls }}</div>
+            <div>Total URLs</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card bg-warning text-white p-3">
+            <div class="fs-2 fw-bold">{{ total_clicks }}</div>
+            <div>Total Clicks</div>
+        </div>
+    </div>
+</div>
+
+<div class="card p-3">
+    <h6 class="fw-bold mb-3">Recent URLs</h6>
+    <table class="table table-sm table-hover">
+        <thead><tr><th>Short Code</th><th>Original URL</th><th>Clicks</th><th>Created</th></tr></thead>
+        <tbody>
+        {% for url in recent_urls %}
+        <tr>
+            <td><code>{{ url.short_code }}</code></td>
+            <td class="text-truncate" style="max-width:300px">{{ url.original_url }}</td>
+            <td>{{ url.clicks }}</td>
+            <td>{{ url.created_at.strftime('%d/%m/%Y') }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="text-center text-muted">No URLs yet</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
