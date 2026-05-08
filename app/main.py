@@ -23,6 +23,11 @@ app.include_router(urls.router)
 app.include_router(admin.router)
 
 
+@app.get("/", include_in_schema=False)
+def root():
+    return RedirectResponse(url="/admin/login")
+
+
 @app.get("/{short_code}", tags=["Redirect"])
 def redirect_url(short_code: str, db: Session = Depends(get_db)):
     url = db.query(models.URL).filter(
