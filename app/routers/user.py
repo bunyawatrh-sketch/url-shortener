@@ -134,7 +134,7 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
     ).all()
     return templates.TemplateResponse(
         "dashboard.html",
-        {"request": request, "username": user.username, "urls": urls, "base_url": BASE_URL},
+        {"request": request, "username": user.username, "urls": urls, "base_url": get_base_url(request)},
     )
 
 
