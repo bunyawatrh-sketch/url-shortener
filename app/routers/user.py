@@ -20,7 +20,12 @@ load_dotenv()
 router = APIRouter(tags=["User"])
 templates = Jinja2Templates(directory="app/templates")
 
-BASE_URL = os.getenv("BASE_URL", "http://localhost:8000")
+
+def get_base_url(request: Request) -> str:
+    base = os.getenv("BASE_URL", "").strip()
+    if base:
+        return base
+    return str(request.base_url).rstrip("/")
 
 
 def get_user_from_cookie(request: Request, db: Session = Depends(get_db)):
@@ -166,7 +171,7 @@ def shorten(
             "username": user.username,
             "urls": urls,
             "new_url": new_url,
-            "base_url": BASE_URL,
+            "base_url": get_base_url(request),
         },
     )
 
