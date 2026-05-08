@@ -124,18 +124,22 @@ def logout():
 
 # -------- Dashboard --------
 
-@router.get("/dashboard", response_class=HTMLResponse)
+@router.get("/dashboard")
 def dashboard(request: Request, db: Session = Depends(get_db)):
-    user = get_user_from_cookie(request, db)
-    if not user:
-        return RedirectResponse(url="/login")
-    urls = db.query(models.URL).filter(models.URL.user_id == user.id).order_by(
-        models.URL.created_at.desc()
-    ).all()
-    return templates.TemplateResponse(
-        "dashboard.html",
-        {"request": request, "username": user.username, "urls": urls, "base_url": get_base_url(request)},
-    )
+    try:
+        user = get_user_from_cookie(request, db)
+        if not user:
+            return RedirectResponse(url="/login")
+        urls = db.query(models.URL).filter(models.URL.user_id == user.id).order_by(
+            models.URL.created_at.desc()
+        ).all()
+        return templates.TemplateResponse(
+            "dashboard.html",
+            {"request": request, "username": user.username, "urls": urls, "base_url": get_base_url(request)},
+        )
+    except Exception as e:
+        from fastapi.responses import JSONResponse
+        return JSONResponse({"error": str(e), "type": type(e).__name__}, status_code=500)
 
 
 @router.post("/shorten")
