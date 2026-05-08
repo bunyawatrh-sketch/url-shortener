@@ -1,5 +1,5 @@
-from fastapi import FastAPI, HTTPException, Depends
-from fastapi.responses import RedirectResponse
+from fastapi import FastAPI, HTTPException, Depends, Request
+from fastapi.responses import RedirectResponse, JSONResponse
 from sqlalchemy.orm import Session
 from .database import engine, get_db
 from . import models
@@ -20,6 +20,11 @@ app.include_router(auth.router)
 app.include_router(urls.router)
 app.include_router(admin.router)
 app.include_router(user.router)
+
+
+@app.exception_handler(Exception)
+async def debug_exception_handler(request: Request, exc: Exception):
+    return JSONResponse({"error": str(exc), "type": type(exc).__name__}, status_code=500)
 
 
 @app.on_event("startup")
