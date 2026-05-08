@@ -3,7 +3,7 @@ services:
     name: url-shortener
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips='*'
     envVars:
       - key: SECRET_KEY
         generateValue: true
@@ -15,8 +15,3 @@ services:
         value: admin
       - key: ADMIN_PASSWORD
         value: admin1234
-      - key: BASE_URL
-        fromService:
-          type: web
-          name: url-shortener
-          property: host

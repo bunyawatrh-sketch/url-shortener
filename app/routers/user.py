@@ -170,19 +170,23 @@ def shorten(
     db.commit()
     db.refresh(new_url)
 
-    urls = db.query(models.URL).filter(models.URL.user_id == user.id).order_by(
+    new_url_dict = {"short_code": new_url.short_code}
+    url_rows = db.query(models.URL).filter(models.URL.user_id == user.id).order_by(
         models.URL.created_at.desc()
     ).all()
-    return templates.TemplateResponse(
-        "dashboard.html",
-        {
-            "request": request,
-            "username": user.username,
-            "urls": urls,
-            "new_url": new_url,
-            "base_url": get_base_url(request),
-        },
+    urls = [
+        {"id": u.id, "original_url": u.original_url,
+         "short_code": u.short_code, "clicks": u.clicks}
+        for u in url_rows
+    ]
+    html = templates.env.get_template("dashboard.html").render(
+        request=request,
+        username=user.username,
+        urls=urls,
+        new_url=new_url_dict,
+        base_url=get_base_url(request),
     )
+    return HTMLResponse(content=html)
 
 
 @router.post("/delete/{url_id}")
