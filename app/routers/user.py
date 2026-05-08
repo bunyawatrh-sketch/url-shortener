@@ -124,22 +124,27 @@ def logout():
 
 # -------- Dashboard --------
 
-@router.get("/dashboard")
+@router.get("/dashboard", response_class=HTMLResponse)
 def dashboard(request: Request, db: Session = Depends(get_db)):
-    try:
-        user = get_user_from_cookie(request, db)
-        if not user:
-            return RedirectResponse(url="/login")
-        urls = db.query(models.URL).filter(models.URL.user_id == user.id).order_by(
-            models.URL.created_at.desc()
-        ).all()
-        return templates.TemplateResponse(
-            "dashboard.html",
-            {"request": request, "username": user.username, "urls": urls, "base_url": get_base_url(request)},
-        )
-    except Exception as e:
-        from fastapi.responses import JSONResponse
-        return JSONResponse({"error": str(e), "type": type(e).__name__}, status_code=500)
+    user = get_user_from_cookie(request, db)
+    if not user:
+        return RedirectResponse(url="/login")
+    url_rows = db.query(models.URL).filter(models.URL.user_id == user.id).order_by(
+        models.URL.created_at.desc()
+    ).all()
+    # Convert to plain dicts so template has no SQLAlchemy dependency
+    urls = [
+        {"id": u.id, "original_url": u.original_url,
+         "short_code": u.short_code, "clicks": u.clicks}
+        for u in url_rows
+    ]
+    html = templates.env.get_template("dashboard.html").render(
+        request=request,
+        username=user.username,
+        urls=urls,
+        base_url=get_base_url(request),
+    )
+    return HTMLResponse(content=html)
 
 
 @router.post("/shorten")
