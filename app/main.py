@@ -1,10 +1,9 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
-from fastapi import Depends
 from .database import engine, get_db
 from . import models
-from .routers import auth, urls, admin
+from .routers import auth, urls, admin, user
 import os
 from dotenv import load_dotenv
 
@@ -21,11 +20,7 @@ app = FastAPI(
 app.include_router(auth.router)
 app.include_router(urls.router)
 app.include_router(admin.router)
-
-
-@app.get("/", include_in_schema=False)
-def root():
-    return RedirectResponse(url="/admin/login")
+app.include_router(user.router)
 
 
 @app.get("/{short_code}", tags=["Redirect"])
